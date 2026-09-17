@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "EV Charging Platform API",
+    "description": "Collection Postman de l'API de gestion des bornes de recharge. Authentifier un client puis copier access_token dans jwt_token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "jwt_token", "value": "" },
+    { "key": "siteId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "borneId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "carteId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "vehiculeId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "sessionId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "factureId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "recompenseId", "value": "00000000-0000-0000-0000-000000000000" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        { "name": "Register", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nom\": \"Dupont\",\n  \"prenom\": \"Jean\",\n  \"email\": \"client@example.com\",\n  \"motDePasse\": \"P@ssword123\"\n}" }, "url": "{{baseUrl}}/auth/register" } },
+        { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"client@example.com\",\n  \"motDePasse\": \"P@ssword123\"\n}" }, "url": "{{baseUrl}}/auth/login" } }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "My profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/users/me" } },
+        { "name": "Update profile", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"prenom\": \"Jean-Paul\"\n}" }, "url": "{{baseUrl}}/users/me" } }
+      ]
+    },
+    {
+      "name": "CarteRfid",
+      "item": [
+        { "name": "Create card", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"identifiantUnique\": \"RFID-0001\"\n}" }, "url": "{{baseUrl}}/cartes-rfid" } },
+        { "name": "List cards", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/cartes-rfid" } },
+        { "name": "Block card", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/cartes-rfid/{{carteId}}/bloquer" } }
+      ]
+    },
+    {
+      "name": "Sites",
+      "item": [
+        { "name": "List sites", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/sites" } },
+        { "name": "Create site (admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nom\": \"Paris Centre\",\n  \"adresse\": \"12 rue de la Republique\",\n  \"ville\": \"Paris\",\n  \"latitude\": 48.8566,\n  \"longitude\": 2.3522\n}" }, "url": "{{baseUrl}}/sites" } }
+      ]
+    },
+    {
+      "name": "Bornes",
+      "item": [
+        { "name": "List stations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/bornes" } },
+        { "name": "Create station (admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"typeBorne\": \"AC\",\n  \"puissance\": 22,\n  \"siteId\": \"{{siteId}}\"\n}" }, "url": "{{baseUrl}}/bornes" } }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "item": [
+        { "name": "Start by QR", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"identifiantBorne\": \"BORNE-001\"\n}" }, "url": "{{baseUrl}}/sessions/start-qr" } },
+        { "name": "List sessions", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/sessions" } },
+        { "name": "Session status", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/sessions/{{sessionId}}/status" } }
+      ]
+    },
+    {
+      "name": "Factures",
+      "item": [
+        { "name": "List invoices", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/factures" } },
+        { "name": "Download invoice PDF", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/factures/{{factureId}}/pdf" } }
+      ]
+    },
+    {
+      "name": "Tarification",
+      "item": [
+        { "name": "Current tariff", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/grilles-tarifaires/actuelle" } },
+        { "name": "Create tariff (admin)", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"prixParKwh\": 0.35,\n  \"prixParMinute\": 0.10,\n  \"dateEffective\": \"2026-09-09T00:00:00.000Z\",\n  \"libelle\": \"Tarif standard\"\n}" }, "url": "{{baseUrl}}/grilles-tarifaires" } }
+      ]
+    },
+    {
+      "name": "Vehicules",
+      "item": [
+        { "name": "Create vehicle", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"immatriculation\": \"AB-123-CD\",\n  \"marque\": \"Tesla\",\n  \"modele\": \"Model 3\"\n}" }, "url": "{{baseUrl}}/vehicules" } },
+        { "name": "List vehicles", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/vehicules" } }
+      ]
+    },
+    {
+      "name": "Fidelite",
+      "item": [
+        { "name": "My loyalty account", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/fidelite/mon-compte" } },
+        { "name": "Exchange reward", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"recompenseId\": \"{{recompenseId}}\"\n}" }, "url": "{{baseUrl}}/fidelite/echanger" } }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "description": "Aucun controller Wallet public n'est present dans la version actuelle. Les debits wallet sont appliques automatiquement lors de la facturation.",
+      "item": []
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "Revenue statistics (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/dashboard/stats/revenue" } },
+        { "name": "Session statistics (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/dashboard/stats/sessions" } },
+        { "name": "Top sites (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }], "url": "{{baseUrl}}/dashboard/stats/top-sites?limit=5" } }
+      ]
+    }
+  ]
+}

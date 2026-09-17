@@ -1,0 +1,18 @@
+import { useState } from 'react'
+import { Calculator, CheckCircle2 } from 'lucide-react'
+
+import type { GrilleTarifaire } from '@/features/tarification/types/grilleTarifaire.types'
+import { Card } from '@/shared/components/Card'
+import { Badge } from '@/shared/components/Badge'
+import { formatCurrency } from '@/shared/utils/formatCurrency'
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(value))
+}
+
+export function GrilleActuelleCard({ grille }: { grille: GrilleTarifaire }) {
+  const [kwh, setKwh] = useState('')
+  const [minutes, setMinutes] = useState('')
+  const amount = Math.max(0, Number(kwh) || 0) * Number(grille.prixParKwh) + Math.max(0, Number(minutes) || 0) * Number(grille.prixParMinute ?? 0)
+  return <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50/60 p-6 shadow-[0_18px_45px_-28px_rgba(16,185,129,.7)]"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Tarification en vigueur</p><h2 className="mt-2 text-2xl font-bold text-slate-950">{grille.libelle || 'Grille actuelle'}</h2><p className="mt-1 text-sm text-slate-500">Applicable depuis le {formatDate(grille.dateEffective)}</p></div><Badge variant="success" className="gap-1"><CheckCircle2 className="size-3.5" /> Grille active</Badge></div><div className="mt-7 grid gap-4 sm:grid-cols-3"><div className="rounded-xl border border-emerald-100 bg-white/80 p-4"><p className="text-xs text-slate-500">Prix énergie</p><p className="mt-1 text-xl font-bold text-slate-950">{formatCurrency(Number(grille.prixParKwh))}<span className="ml-1 text-xs font-medium text-slate-500">/ kWh</span></p></div><div className="rounded-xl border border-emerald-100 bg-white/80 p-4"><p className="text-xs text-slate-500">Prix durée</p><p className="mt-1 text-xl font-bold text-slate-950">{grille.prixParMinute == null ? 'Non facturé' : `${formatCurrency(Number(grille.prixParMinute))} / min`}</p></div><div className="rounded-xl border border-emerald-100 bg-white/80 p-4"><p className="text-xs text-slate-500">Statut</p><p className="mt-1 text-xl font-bold text-emerald-700">En vigueur</p></div></div><div className="mt-7 border-t border-emerald-100 pt-5"><div className="flex items-center gap-2"><Calculator className="size-4 text-blue-600" aria-hidden="true" /><h3 className="font-semibold text-slate-900">Simuler une recharge</h3></div><div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"><label className="text-sm font-medium text-slate-700">kWh<input type="number" min="0" step="0.01" value={kwh} onChange={(event) => setKwh(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" placeholder="0" /></label><label className="text-sm font-medium text-slate-700">Durée (min)<input type="number" min="0" step="1" value={minutes} onChange={(event) => setMinutes(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" placeholder="0" /></label><div className="rounded-lg bg-slate-950 px-4 py-2 text-white"><p className="text-xs text-white/60">Montant estimé</p><p className="font-mono text-lg font-bold text-emerald-300">{formatCurrency(amount)}</p></div></div></div></Card>
+}
