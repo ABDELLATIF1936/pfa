@@ -25,7 +25,7 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const ws = require('ws');
 
-const DEFAULT_SERVER_URL = 'ws://localhost:3001/ocpp';
+const DEFAULT_SERVER_URL = `ws://localhost:${process.env.PORT ?? 3000}/ocpp`;
 const DEFAULT_BORNE_ID = 'B_MC_001';
 const DEFAULT_ID_TAG = 'CARD_TEST_001';
 

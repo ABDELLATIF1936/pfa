@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateWalletTransaction1789598870881 implements MigrationInterface {
-    name = 'CreateWalletTransaction1789598870881'
+export class CreateWalletTransaction1795000000001 implements MigrationInterface {
+    name = 'CreateWalletTransaction1795000000001'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "vehicule" DROP CONSTRAINT "FK_vehicule_client"`);

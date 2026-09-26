@@ -6,8 +6,8 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as http from 'node:http';
+import { Duplex } from 'node:stream';
 import { WebSocket, WebSocketServer } from 'ws';
 import { StatutBorne } from '../bornes/enums/statut-borne.enum';
 import { BornesService } from '../bornes/bornes.service';
@@ -62,9 +62,11 @@ export class OcppServerService implements OnModuleInit, OnModuleDestroy {
   private readonly handlers: Map<string, OcppActionHandler> = new Map();
   private server: WebSocketServer | undefined;
   private httpServer: http.Server | undefined;
+  private upgradeHandler:
+    | ((request: http.IncomingMessage, socket: Duplex, head: Buffer) => void)
+    | undefined;
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly bornesService: BornesService,
     private readonly bornesGateway: BornesGateway,
     private readonly usersService: UsersService,
@@ -85,8 +87,6 @@ export class OcppServerService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.sessionsService.reconcilierSessionsOrphelines();
-    const port = Number(this.configService.get<number>('OCPP_PORT', 3001));
-    this.startServer(port);
   }
 
   onModuleDestroy() {
@@ -95,16 +95,22 @@ export class OcppServerService implements OnModuleInit, OnModuleDestroy {
       pending.reject(new Error('Serveur OCPP arrêté'));
     }
     this.pendingRequests.clear();
+    if (this.httpServer && this.upgradeHandler) {
+      this.httpServer.off('upgrade', this.upgradeHandler);
+    }
     this.server?.close();
-    this.httpServer?.close();
   }
 
-  private startServer(port: number) {
-    this.httpServer = http.createServer();
+  attachHttpServer(httpServer: http.Server) {
+    this.httpServer = httpServer;
     this.server = new WebSocketServer({ noServer: true });
 
-    this.httpServer.on('upgrade', (request, socket, head) => {
+    this.upgradeHandler = (request, socket, head) => {
       const pathname = request.url ?? '/';
+      if (!pathname.startsWith('/ocpp/')) {
+        return;
+      }
+
       const protocol = request.headers['sec-websocket-protocol'];
       const desiredProtocol = Array.isArray(protocol) ? protocol[0] : protocol;
 
@@ -128,7 +134,8 @@ export class OcppServerService implements OnModuleInit, OnModuleDestroy {
       this.server!.handleUpgrade(request, socket, head, (ws) => {
         this.server!.emit('connection', ws, request);
       });
-    });
+    };
+    this.httpServer.on('upgrade', this.upgradeHandler);
 
     this.server.on('connection', (ws, request) => {
       const pathname = request.url ?? '/';
@@ -149,9 +156,7 @@ export class OcppServerService implements OnModuleInit, OnModuleDestroy {
       this.handleConnection(ws, identifiantUnique);
     });
 
-    this.httpServer.listen(port, () => {
-      this.logger.log(`Serveur OCPP démarré sur ws://localhost:${port}/ocpp/{identifiantUnique}`);
-    });
+    this.logger.log('Serveur OCPP attaché sur /ocpp/{identifiantUnique}');
   }
 
   private extractIdentifiantUnique(pathname: string): string | null {

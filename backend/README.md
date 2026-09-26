@@ -35,21 +35,20 @@ copy .env.example .env
 
 Variables d'environnement :
 
-| Variable                 | Description                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `DB_HOST`                | Hote PostgreSQL, par defaut `localhost`.                                                               |
-| `DB_PORT`                | Port PostgreSQL, par defaut `5432`.                                                                    |
-| `DB_USER`                | Utilisateur PostgreSQL.                                                                                |
-| `DB_PASSWORD`            | Mot de passe PostgreSQL.                                                                               |
-| `DB_NAME`                | Nom de la base.                                                                                        |
-| `DATABASE_URL`           | URL PostgreSQL alternative pour un deploiement ; la configuration TypeORM utilise actuellement `DB_*`. |
-| `JWT_SECRET`             | Secret long et aleatoire pour signer les tokens JWT.                                                   |
-| `PORT`                   | Port HTTP, par defaut `3000`.                                                                          |
-| `FRONTEND_URL`           | Origines CORS autorisees, separees par des virgules.                                                   |
-| `OCPP_PORT`              | Port WebSocket OCPP, par defaut `3001`.                                                                |
-| `STRIPE_SECRET_KEY`      | Optionnel, cle Stripe de test si le provider carte est active.                                         |
-| `STRIPE_PUBLISHABLE_KEY` | Optionnel, cle Stripe publique de test.                                                                |
-| `STRIPE_WEBHOOK_SECRET`  | Optionnel, secret de verification des webhooks Stripe.                                                 |
+| Variable                 | Description                                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `DB_HOST`                | Hote PostgreSQL, par defaut `localhost`.                                                                 |
+| `DB_PORT`                | Port PostgreSQL, par defaut `5432`.                                                                      |
+| `DB_USER`                | Utilisateur PostgreSQL.                                                                                  |
+| `DB_PASSWORD`            | Mot de passe PostgreSQL.                                                                                 |
+| `DB_NAME`                | Nom de la base.                                                                                          |
+| `DATABASE_URL`           | URL PostgreSQL alternative pour un deploiement ; la configuration TypeORM utilise actuellement `DB_*`.   |
+| `JWT_SECRET`             | Secret long et aleatoire pour signer les tokens JWT.                                                     |
+| `PORT`                   | Port HTTP et OCPP partage, par defaut `3000` (egalement fourni dynamiquement par les plateformes cloud). |
+| `FRONTEND_URL`           | Origines CORS autorisees, separees par des virgules.                                                     |
+| `STRIPE_SECRET_KEY`      | Optionnel, cle Stripe de test si le provider carte est active.                                           |
+| `STRIPE_PUBLISHABLE_KEY` | Optionnel, cle Stripe publique de test.                                                                  |
+| `STRIPE_WEBHOOK_SECRET`  | Optionnel, secret de verification des webhooks Stripe.                                                   |
 
 Ne jamais committer `.env` ni de vrais secrets.
 
@@ -69,7 +68,7 @@ npm run start:prod
 npm run simulator
 ```
 
-Le simulateur OCPP utilise `OCPP_PORT` pour tester les notifications et transactions de recharge.
+Le serveur OCPP partage le port HTTP de NestJS. Les bornes se connectent sur `ws://<host>/ocpp/{identifiantUnique}` (ou `wss://<host>/ocpp/{identifiantUnique}` en HTTPS). En local, le simulateur utilise `ws://localhost:3000/ocpp/{identifiantUnique}` par defaut.
 
 ## Tests
 
