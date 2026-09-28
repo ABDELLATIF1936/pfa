@@ -22,8 +22,8 @@ export function QrScanner({ onDetected, onCancel }: QrScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const stoppedRef = useRef(false)
   const readerId = `qr-reader-${useId().replace(/:/g, '')}`
-  const [error, setError] = useState(() => isSecureContext ? '' : 'Le scan caméra nécessite une connexion sécurisée HTTPS, sauf en local.')
   const isSecureContext = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+  const [error, setError] = useState(() => isSecureContext ? '' : 'Le scan caméra nécessite une connexion sécurisée HTTPS, sauf en local.')
 
   useEffect(() => {
     if (!isSecureContext) {
